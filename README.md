@@ -7,7 +7,7 @@ When the Summoner’s MP reaches 30% or lower, the addon will:
 1. Dismiss the currently summoned avatar or spirit, if one is active.
 2. Summon the elemental spirit matching the current Vana’diel day.
 3. Use Elemental Siphon.
-4. Dismiss the elemental spirit after Elemental Siphon completes.
+4. Dismiss the elemental spirit after Elemental Siphon is used.
 5. Wait until Elemental Siphon’s actual in-game cooldown has ended before attempting the sequence again.
 
 The addon will not attempt the sequence inside supported town zones or a Mog House.
@@ -172,13 +172,35 @@ The addon also blocks all attempts while the player is inside a Mog House.
 
 ## Version History
 
+### v1.5.0
+
+#### New
+- Added automatic release of the summoned elemental spirit after Elemental Siphon.
+- Verified compatibility with Trust.
+
+#### Fixed
+- Fixed an issue where the summoned elemental spirit could remain active after Elemental Siphon.
+- Removed unreliable action-packet detection that could prevent the release sequence from completing.
+- Improved release handling by retrying the Release command until the spirit is dismissed or the retry limit is reached.
+
+#### Improved
+- Improved the overall timing and reliability of the Elemental Siphon sequence.
+
 ### v1.4.0
+
+#### New
 - Switched to Elemental Siphon's actual in-game recast.
 - Added blocked town and Mog House detection.
 - Added a 30-second retry delay after failed attempts.
+
+#### Improved
 - Improved automatic sequence reliability.
 
 ### v1.3.0
+
+#### New
 - Added automatic MP monitoring.
 - Added manual commands (`//es`, `//es go`, `//es siphon`).
+
+#### Improved
 - Improved action timing.
