@@ -14,7 +14,7 @@
 
 _addon.name = 'elemental_siphon'
 _addon.author = 'Alex (Soulkiller)'
-_addon.version = '1.4.0'
+_addon.version = '1.4.1'
 _addon.command = 'es'
 
 require('coroutine')
@@ -37,6 +37,17 @@ local spirit_by_day = {
     Lightningday = 'Thunder Spirit',
     Lightsday    = 'Light Spirit',
     Darksday     = 'Dark Spirit',
+}
+
+local elemental_spirits = {
+    ['Fire Spirit'] = true,
+    ['Earth Spirit'] = true,
+    ['Water Spirit'] = true,
+    ['Air Spirit'] = true,
+    ['Ice Spirit'] = true,
+    ['Thunder Spirit'] = true,
+    ['Light Spirit'] = true,
+    ['Dark Spirit'] = true,
 }
 
 local blocked_towns = {
@@ -98,7 +109,18 @@ local function get_siphon_recast_id()
     return nil
 end
 
+local function get_siphon_ability_id()
+    for id, ability in pairs(res.job_abilities) do
+        if ability.english == 'Elemental Siphon' then
+            return id
+        end
+    end
+
+    return nil
+end
+
 local siphon_recast_id = get_siphon_recast_id()
+local siphon_ability_id = get_siphon_ability_id()
 
 local function get_siphon_recast()
     if not siphon_recast_id then
@@ -116,6 +138,30 @@ end
 
 local function retry_remaining()
     return math.max(0, next_attempt_time - os.time())
+end
+
+local function release_siphon_spirit(attempt)
+    attempt = attempt or 1
+
+    local pet = windower.ffxi.get_mob_by_target('pet')
+
+    windower.send_command('input /pet "Release" <me>')
+
+    if attempt < 5 then
+        coroutine.schedule(function()
+            local current_pet = windower.ffxi.get_mob_by_target('pet')
+
+            if current_pet then
+                release_siphon_spirit(attempt + 1)
+            else
+                running = false
+            end
+        end, 1.0)
+    else
+        coroutine.schedule(function()
+            running = false
+        end, 1.0)
+    end
 end
 
 local function is_blocked_town()
@@ -247,20 +293,16 @@ local function run_siphon(manual)
     end, summon_delay)
 
     -- Use Elemental Siphon after the spirit has been summoned.
-    coroutine.schedule(function()
-        windower.send_command(
-            'input /ja "Elemental Siphon" <me>'
-        )
-    end, summon_delay + 6.0)
+	coroutine.schedule(function()
+		windower.send_command(
+			'input /ja "Elemental Siphon" <me>'
+		)
 
-    -- Release the elemental spirit after Elemental Siphon.
-    coroutine.schedule(function()
-        windower.send_command(
-            'input /pet "Release" <me>'
-        )
-
-        running = false
-    end, summon_delay + 9.0)
+		coroutine.schedule(function()
+			release_siphon_spirit(1)
+		end, 9.0)
+	end, summon_delay + 6.0)
+    
 end
 
 -- Check MP approximately once per second.
